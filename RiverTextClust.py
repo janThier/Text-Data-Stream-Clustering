@@ -1,3 +1,4 @@
+# erweitertes Beispiel von https://riverml.xyz/dev/api/cluster/TextClust/
 from river import compose
 from river import feature_extraction
 from river import metrics
@@ -16,7 +17,7 @@ corpus = [
 stopwords = [ 'stop', 'the', 'to', 'and', 'a', 'in', 'it', 'is', 'I']
 
 nmi = metrics.NormalizedMutualInfo()
-homogeneity = metrics.Homogeneity() # homogen, wenn alle Cluster nur Datenpunkte aus einer einzigen Klasse enthalten
+homogeneity = metrics.Homogeneity()
 
 # Pipeline behandelt diese beiden Schritte als eine Einheit, wenn predict_one() und learn_one() aufgerufen werden
 model = compose.Pipeline(
@@ -25,15 +26,13 @@ model = compose.Pipeline(
     radius=0.9)
 )
 
-# Die Schleife symbolisiert das inkrementelle Lernen über den Datensatz
+# inkrementelles Lernen über den Datensatz
 for x in corpus:
-    # predict_one() gibt den Index des Clusters zurück, dem das feature-set zugeordnet wird
+    # predict_one() gibt das Clusters zurück, dem das feature-set zugeordnet wird
     y_pred = model.predict_one(x["text"])
     y = x["cluster"]
-    # update() berechnet die Metrik für das aktuelle feature-set
     nmi.update(y, y_pred)
     homogeneity.update(y, y_pred)
-    # learn_one() aktualisiert das TextClust-Modell mit dem neuen feature-set
     model.learn_one(x["text"])
 
 print(nmi) # 0.6067810370082493
